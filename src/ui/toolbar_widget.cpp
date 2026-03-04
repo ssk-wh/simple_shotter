@@ -1,5 +1,6 @@
 #include "toolbar_widget.h"
 #include <QPainter>
+#include <QPainterPath>
 #include <QMouseEvent>
 #include <QApplication>
 #include <QScreen>

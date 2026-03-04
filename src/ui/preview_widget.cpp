@@ -1,5 +1,6 @@
 #include "preview_widget.h"
 #include <QPainter>
+#include <QPainterPath>
 #include <QApplication>
 #include <QScreen>
 
