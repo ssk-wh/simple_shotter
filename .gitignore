@@ -1,0 +1,35 @@
+# Build artifacts
+build/
+out/
+dist/
+bin/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.obj
+*.pdb
+*.lib
+*.dll
+*.exe
+*.ilk
+*.exp
+*.o
+*.a
+*.so
+
+# IDE
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+tmp/
+temp/
+*.log

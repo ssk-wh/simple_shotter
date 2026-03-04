@@ -1,0 +1,74 @@
+# Build artifacts
+build/
+out/
+dist/
+bin/
+Debug/
+Release/
+x64/
+x86/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.obj
+*.pdb
+*.lib
+*.dll
+*.exe
+*.ilk
+*.exp
+*.o
+*.a
+*.so
+
+# Dependencies
+node_modules/
+vendor/
+third_party/
+3rdparty/
+thirdparty/
+external/
+
+# Package management
+.nuget/
+packages/
+
+# IDE/Tools
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.ncb
+*.sdf
+*.opensdf
+
+# Version control
+.git/
+
+# Cache/Temp
+__pycache__/
+*.pyc
+.cache/
+tmp/
+temp/
+
+# Large binaries
+*.zip
+*.7z
+*.rar
+*.tar.gz
+*.iso
+*.msi
+*.png
+*.jpg
+*.bmp
+*.gif
+*.mp4
+*.mp3
+*.wav
+
+# Logs
+*.log
+logs/
