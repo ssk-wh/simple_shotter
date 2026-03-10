@@ -29,7 +29,13 @@ Makefile
 .DS_Store
 Thumbs.db
 
+# Deploy artifacts
+deploy/
+installer/*.exe
+installer/dist/
+
 # Temp
 tmp/
 temp/
 *.log
+*.stackdump

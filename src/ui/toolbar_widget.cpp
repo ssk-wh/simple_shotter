@@ -17,31 +17,36 @@ ToolbarWidget::ToolbarWidget(QWidget* parent)
     layoutButtons();
 }
 
-ToolbarWidget::~ToolbarWidget() = default;
+ToolbarWidget::~ToolbarWidget()
+{
+    delete m_saveMenu;
+    delete m_stylePanel;
+}
 
 void ToolbarWidget::layoutButtons()
 {
     m_buttons.clear();
 
-    // Annotation tools (P1 - reserved, disabled)
-    m_buttons.append({{}, "Pen", 3, false});
-    m_buttons.append({{}, "Mosaic", 4, false});
-    m_buttons.append({{}, "Arrow", 5, false});
-    m_buttons.append({{}, "Text", 6, false});
-    // Separator represented by extra spacing (handled in layout)
-    m_buttons.append({{}, "Undo", 7, false});
-    m_buttons.append({{}, "Redo", 8, false});
+    // Annotation tools (all enabled, toggleable)
+    m_buttons.append({{}, "Rect",    3, true, true, false});
+    m_buttons.append({{}, "Ellipse", 4, true, true, false});
+    m_buttons.append({{}, "Arrow",   5, true, true, false});
+    m_buttons.append({{}, "Text",    6, true, true, false});
+    m_buttons.append({{}, "Mosaic",  7, true, true, false});
     // Separator
-    m_buttons.append({{}, "Copy", 0, true});
-    m_buttons.append({{}, "Save", 1, true});
-    m_buttons.append({{}, "Cancel", 2, true});
+    m_buttons.append({{}, "Undo",    8, false, false, false});
+    m_buttons.append({{}, "Redo",    9, false, false, false});
+    // Separator
+    m_buttons.append({{}, "Copy",    0, true, false, false});
+    m_buttons.append({{}, "Save",    1, true, false, false});
+    m_buttons.append({{}, "Cancel",  2, true, false, false});
 
     // Calculate positions
     int x = kPadding;
     int y = kPadding;
     for (int i = 0; i < m_buttons.size(); i++) {
         // Add separator spacing before undo group and action group
-        if (i == 4 || i == 6) {
+        if (i == 5 || i == 7) {
             x += kSeparatorWidth;
         }
         m_buttons[i].rect = QRect(x, y, kButtonWidth, kButtonHeight);
@@ -72,9 +77,42 @@ void ToolbarWidget::showNearRect(const QRect& selectionRect)
         if (y < screenRect.top()) y = selectionRect.bottom() + 6;
     }
 
+    m_lastSelectionRect = selectionRect;
     move(x, y);
     show();
     raise();
+}
+
+void ToolbarWidget::setActiveTool(AnnotationTool tool)
+{
+    for (int i = 0; i < m_buttons.size(); i++) {
+        if (m_buttons[i].toggleable) {
+            m_buttons[i].toggled = (toolForIconType(m_buttons[i].iconType) == tool);
+        }
+    }
+    showStylePanel(tool);
+    update();
+}
+
+void ToolbarWidget::updateUndoRedoState(bool canUndo, bool canRedo)
+{
+    for (int i = 0; i < m_buttons.size(); i++) {
+        if (m_buttons[i].iconType == 8) m_buttons[i].enabled = canUndo;
+        if (m_buttons[i].iconType == 9) m_buttons[i].enabled = canRedo;
+    }
+    update();
+}
+
+AnnotationTool ToolbarWidget::toolForIconType(int iconType) const
+{
+    switch (iconType) {
+    case 3: return AnnotationTool::Rectangle;
+    case 4: return AnnotationTool::Ellipse;
+    case 5: return AnnotationTool::Arrow;
+    case 6: return AnnotationTool::Text;
+    case 7: return AnnotationTool::Mosaic;
+    default: return AnnotationTool::None;
+    }
 }
 
 void ToolbarWidget::paintEvent(QPaintEvent* event)
@@ -97,8 +135,8 @@ void ToolbarWidget::paintEvent(QPaintEvent* event)
             painter.drawLine(sepX, kPadding + 4, sepX, kPadding + kButtonHeight - 4);
         }
     };
-    drawSep(4); // before undo group
-    drawSep(6); // before action group
+    drawSep(5); // before undo group
+    drawSep(7); // before action group
 
     // Draw buttons
     for (int i = 0; i < m_buttons.size(); i++) {
@@ -117,7 +155,11 @@ void ToolbarWidget::drawButton(QPainter& painter, const ButtonInfo& btn,
     painter.setOpacity(opacity);
 
     // Button background
-    if (pressed && btn.enabled) {
+    if (btn.toggled && btn.enabled) {
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(QColor(0, 120, 215, 120));
+        painter.drawRoundedRect(btn.rect, 3, 3);
+    } else if (pressed && btn.enabled) {
         painter.setPen(Qt::NoPen);
         painter.setBrush(QColor(255, 255, 255, 50));
         painter.drawRoundedRect(btn.rect, 3, 3);
@@ -141,12 +183,13 @@ void ToolbarWidget::drawButton(QPainter& painter, const ButtonInfo& btn,
     case 0: drawCopyIcon(painter, iconRect); break;
     case 1: drawSaveIcon(painter, iconRect); break;
     case 2: drawCancelIcon(painter, iconRect); break;
-    case 3: drawPenIcon(painter, iconRect); break;
-    case 4: drawMosaicIcon(painter, iconRect); break;
+    case 3: drawRectIcon(painter, iconRect); break;
+    case 4: drawEllipseIcon(painter, iconRect); break;
     case 5: drawArrowIcon(painter, iconRect); break;
     case 6: drawTextIcon(painter, iconRect); break;
-    case 7: drawUndoIcon(painter, iconRect); break;
-    case 8: drawRedoIcon(painter, iconRect); break;
+    case 7: drawMosaicIcon(painter, iconRect); break;
+    case 8: drawUndoIcon(painter, iconRect); break;
+    case 9: drawRedoIcon(painter, iconRect); break;
     }
 
     painter.restore();
@@ -154,7 +197,6 @@ void ToolbarWidget::drawButton(QPainter& painter, const ButtonInfo& btn,
 
 void ToolbarWidget::drawCopyIcon(QPainter& painter, const QRect& r) const
 {
-    // Two overlapping rectangles
     QPen pen(QColor(220, 220, 220), 1.3);
     painter.setPen(pen);
     painter.setBrush(Qt::NoBrush);
@@ -167,20 +209,16 @@ void ToolbarWidget::drawCopyIcon(QPainter& painter, const QRect& r) const
 
 void ToolbarWidget::drawSaveIcon(QPainter& painter, const QRect& r) const
 {
-    // Floppy disk shape
     QPen pen(QColor(220, 220, 220), 1.3);
     painter.setPen(pen);
     painter.setBrush(Qt::NoBrush);
     painter.drawRect(r.adjusted(1, 1, -1, -1));
-    // Top slot
     painter.drawRect(r.left() + 4, r.top() + 1, r.width() - 8, 5);
-    // Bottom label area
     painter.drawRect(r.left() + 3, r.bottom() - 5, r.width() - 6, 5);
 }
 
 void ToolbarWidget::drawCancelIcon(QPainter& painter, const QRect& r) const
 {
-    // X mark
     QPen pen(QColor(220, 100, 100), 1.8);
     painter.setPen(pen);
     int m = 3;
@@ -188,38 +226,29 @@ void ToolbarWidget::drawCancelIcon(QPainter& painter, const QRect& r) const
     painter.drawLine(r.right() - m, r.top() + m, r.left() + m, r.bottom() - m);
 }
 
-void ToolbarWidget::drawPenIcon(QPainter& painter, const QRect& r) const
+void ToolbarWidget::drawRectIcon(QPainter& painter, const QRect& r) const
 {
-    // Diagonal pen stroke
     QPen pen(QColor(220, 220, 220), 1.5);
     painter.setPen(pen);
-    painter.drawLine(r.left() + 2, r.bottom() - 2, r.right() - 2, r.top() + 2);
-    // Pen tip
-    painter.drawLine(r.left() + 2, r.bottom() - 2, r.left() + 4, r.bottom() - 4);
+    painter.setBrush(Qt::NoBrush);
+    painter.drawRect(r.adjusted(2, 3, -2, -3));
 }
 
-void ToolbarWidget::drawMosaicIcon(QPainter& painter, const QRect& r) const
+void ToolbarWidget::drawEllipseIcon(QPainter& painter, const QRect& r) const
 {
-    // Grid pattern
-    QPen pen(QColor(220, 220, 220), 1.0);
+    QPen pen(QColor(220, 220, 220), 1.5);
     painter.setPen(pen);
-    int step = 4;
-    for (int x = r.left() + 2; x < r.right() - 1; x += step) {
-        for (int y = r.top() + 2; y < r.bottom() - 1; y += step) {
-            if (((x - r.left()) / step + (y - r.top()) / step) % 2 == 0) {
-                painter.fillRect(x, y, step - 1, step - 1, QColor(220, 220, 220));
-            }
-        }
-    }
+    painter.setBrush(Qt::NoBrush);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.drawEllipse(r.adjusted(1, 2, -1, -2));
+    painter.setRenderHint(QPainter::Antialiasing, false);
 }
 
 void ToolbarWidget::drawArrowIcon(QPainter& painter, const QRect& r) const
 {
     QPen pen(QColor(220, 220, 220), 1.5);
     painter.setPen(pen);
-    // Arrow line
     painter.drawLine(r.left() + 2, r.bottom() - 2, r.right() - 3, r.top() + 3);
-    // Arrow head
     painter.drawLine(r.right() - 3, r.top() + 3, r.right() - 3, r.top() + 7);
     painter.drawLine(r.right() - 3, r.top() + 3, r.right() - 7, r.top() + 3);
 }
@@ -232,19 +261,31 @@ void ToolbarWidget::drawTextIcon(QPainter& painter, const QRect& r) const
     painter.drawText(r, Qt::AlignCenter, "T");
 }
 
+void ToolbarWidget::drawMosaicIcon(QPainter& painter, const QRect& r) const
+{
+    QPen pen(QColor(220, 220, 220), 1.0);
+    painter.setPen(pen);
+    int step = 4;
+    for (int x = r.left() + 2; x < r.right() - 1; x += step) {
+        for (int y = r.top() + 2; y < r.bottom() - 1; y += step) {
+            if (((x - r.left()) / step + (y - r.top()) / step) % 2 == 0) {
+                painter.fillRect(x, y, step - 1, step - 1, QColor(220, 220, 220));
+            }
+        }
+    }
+}
+
 void ToolbarWidget::drawUndoIcon(QPainter& painter, const QRect& r) const
 {
     QPen pen(QColor(220, 220, 220), 1.5);
     painter.setPen(pen);
     painter.setBrush(Qt::NoBrush);
-    // Curved arrow pointing left
     QPainterPath path;
     path.moveTo(r.left() + 3, r.center().y());
     path.cubicTo(r.left() + 3, r.top() + 2,
                  r.right() - 3, r.top() + 2,
                  r.right() - 3, r.center().y());
     painter.drawPath(path);
-    // Arrow head
     painter.drawLine(r.left() + 3, r.center().y(), r.left() + 6, r.center().y() - 3);
     painter.drawLine(r.left() + 3, r.center().y(), r.left() + 6, r.center().y() + 3);
 }
@@ -254,14 +295,12 @@ void ToolbarWidget::drawRedoIcon(QPainter& painter, const QRect& r) const
     QPen pen(QColor(220, 220, 220), 1.5);
     painter.setPen(pen);
     painter.setBrush(Qt::NoBrush);
-    // Curved arrow pointing right
     QPainterPath path;
     path.moveTo(r.right() - 3, r.center().y());
     path.cubicTo(r.right() - 3, r.top() + 2,
                  r.left() + 3, r.top() + 2,
                  r.left() + 3, r.center().y());
     painter.drawPath(path);
-    // Arrow head
     painter.drawLine(r.right() - 3, r.center().y(), r.right() - 6, r.center().y() - 3);
     painter.drawLine(r.right() - 3, r.center().y(), r.right() - 6, r.center().y() + 3);
 }
@@ -306,10 +345,30 @@ void ToolbarWidget::mouseReleaseEvent(QMouseEvent* event)
     if (event->button() == Qt::LeftButton && m_pressedIndex >= 0) {
         int idx = buttonAtPos(event->pos());
         if (idx == m_pressedIndex && m_buttons[idx].enabled) {
-            switch (m_buttons[idx].iconType) {
-            case 0: emit copyClicked(); break;
-            case 1: emit saveClicked(); break;
-            case 2: emit cancelClicked(); break;
+            int iconType = m_buttons[idx].iconType;
+
+            if (m_buttons[idx].toggleable) {
+                AnnotationTool tool = toolForIconType(iconType);
+                bool wasToggled = m_buttons[idx].toggled;
+                for (int i = 0; i < m_buttons.size(); i++) {
+                    if (m_buttons[i].toggleable) m_buttons[i].toggled = false;
+                }
+                if (!wasToggled) {
+                    m_buttons[idx].toggled = true;
+                    showStylePanel(tool);
+                    emit toolSelected(tool);
+                } else {
+                    showStylePanel(AnnotationTool::None);
+                    emit toolSelected(AnnotationTool::None);
+                }
+            } else {
+                switch (iconType) {
+                case 0: emit copyClicked(); break;
+                case 1: showSaveMenu(idx); break;
+                case 2: emit cancelClicked(); break;
+                case 8: emit undoClicked(); break;
+                case 9: emit redoClicked(); break;
+                }
             }
         }
         m_pressedIndex = -1;
@@ -324,6 +383,35 @@ void ToolbarWidget::leaveEvent(QEvent* event)
     m_pressedIndex = -1;
     setCursor(Qt::ArrowCursor);
     update();
+}
+
+void ToolbarWidget::showStylePanel(AnnotationTool tool)
+{
+    if (tool == AnnotationTool::None) {
+        if (m_stylePanel) m_stylePanel->hide();
+        return;
+    }
+
+    if (!m_stylePanel) {
+        m_stylePanel = new StylePanelWidget(nullptr);
+    }
+
+    // Position below toolbar
+    QPoint panelPos(pos().x(), pos().y() + height() + 4);
+    m_stylePanel->showForTool(tool, panelPos);
+}
+
+void ToolbarWidget::showSaveMenu(int buttonIndex)
+{
+    if (!m_saveMenu) {
+        m_saveMenu = new SaveMenuWidget(nullptr);
+        connect(m_saveMenu, &SaveMenuWidget::saveToDesktop, this, &ToolbarWidget::saveToDesktopClicked);
+        connect(m_saveMenu, &SaveMenuWidget::saveToFolder, this, &ToolbarWidget::saveToFolderClicked);
+    }
+
+    QRect btnRect = m_buttons[buttonIndex].rect;
+    QPoint menuPos = mapToGlobal(QPoint(btnRect.left(), btnRect.bottom() + 4));
+    m_saveMenu->showAt(menuPos);
 }
 
 } // namespace easyshotter

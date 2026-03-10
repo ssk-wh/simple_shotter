@@ -10,6 +10,9 @@ set(UI_SOURCES
     ui/capture_overlay.cpp
     ui/toolbar_widget.cpp
     ui/preview_widget.cpp
+    ui/annotation_item.cpp
+    ui/save_menu_widget.cpp
+    ui/style_panel_widget.cpp
 )
 
 set(UTILS_SOURCES

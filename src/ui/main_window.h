@@ -5,6 +5,10 @@
 #include <QMenu>
 #include <memory>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
 namespace easyshotter {
 
 class PlatformApi;
@@ -25,11 +29,13 @@ private slots:
     void onTrayIconActivated(QSystemTrayIcon::ActivationReason reason);
     void onStartCapture();
     void onCaptureConfirmed(const QPixmap& pixmap, const QRect& region);
+    void onCaptureSaveRequested(const QPixmap& pixmap, const QRect& region, int action);
     void onCaptureCancelled();
 
 private:
     void setupTrayIcon();
     void setupHotkey();
+    void setupSingleInstanceListener();
     QIcon createTrayIcon() const;
 
     std::unique_ptr<PlatformApi> m_platformApi;
@@ -41,6 +47,12 @@ private:
     QMenu* m_trayMenu = nullptr;
 
     int m_hotkeyId = -1;
+
+#ifdef Q_OS_WIN
+    HWND m_hiddenWindow = nullptr;
+    UINT m_captureMsg = 0;
+    static LRESULT CALLBACK hiddenWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#endif
 };
 
 } // namespace easyshotter
