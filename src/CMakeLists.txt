@@ -56,6 +56,7 @@ target_link_libraries(SimpleShotter PRIVATE
     Qt5::Core
     Qt5::Gui
     Qt5::Widgets
+    Qt5::Svg
 )
 
 if(WIN32)

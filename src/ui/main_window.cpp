@@ -77,7 +77,7 @@ QIcon MainWindow::createTrayIcon() const
 {
     // Load SVG icon from embedded Qt resource
     QIcon icon(":/app-icon.svg");
-    if (!icon.isNull()) return icon;
+    if (!icon.isNull() && !icon.availableSizes().isEmpty()) return icon;
 
     // Final fallback: draw programmatically
     QPixmap pixmap(32, 32);
