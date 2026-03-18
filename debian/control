@@ -5,6 +5,7 @@ Maintainer: SimpleShotter Developers <dev@simpleshotter.org>
 Build-Depends: debhelper-compat (= 12),
                cmake (>= 3.16),
                qtbase5-dev,
+               libqt5svg5-dev,
                libqt5x11extras5-dev,
                libxcb1-dev,
                libxcb-ewmh-dev,

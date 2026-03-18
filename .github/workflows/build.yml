@@ -111,7 +111,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            debhelper cmake qtbase5-dev libqt5x11extras5-dev \
+            debhelper cmake qtbase5-dev libqt5svg5-dev libqt5x11extras5-dev \
             libxcb1-dev libxcb-ewmh-dev libxcb-icccm4-dev libx11-dev \
             libatspi2.0-dev libglib2.0-dev pkg-config \
             fakeroot dpkg-dev librsvg2-bin
