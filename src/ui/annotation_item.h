@@ -10,7 +10,7 @@
 #include <vector>
 #include <memory>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 enum class AnnotationTool {
     None,
@@ -106,4 +106,4 @@ private:
     std::vector<std::unique_ptr<AnnotationItem>> m_redoStack;
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter

@@ -4,7 +4,7 @@
 #include <QPixmap>
 #include <QString>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class FileSaver : public QObject {
     Q_OBJECT
@@ -29,4 +29,4 @@ private:
     Format m_defaultFormat = Format::PNG;
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter

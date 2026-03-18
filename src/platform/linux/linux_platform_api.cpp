@@ -21,7 +21,7 @@
 #include <cstring>
 #include <algorithm>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 // ---- Hotkey native event filter ----
 
@@ -718,6 +718,6 @@ std::unique_ptr<PlatformApi> PlatformApi::create()
     return std::make_unique<LinuxPlatformApi>();
 }
 
-} // namespace easyshotter
+} // namespace simpleshotter
 
 #endif // __linux__

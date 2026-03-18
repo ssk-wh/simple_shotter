@@ -2,7 +2,7 @@
 #include <QClipboard>
 #include <QApplication>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 ClipboardManager::ClipboardManager(QObject* parent)
     : QObject(parent)
@@ -16,4 +16,4 @@ void ClipboardManager::copyToClipboard(const QPixmap& pixmap)
     QApplication::clipboard()->setPixmap(pixmap);
 }
 
-} // namespace easyshotter
+} // namespace simpleshotter

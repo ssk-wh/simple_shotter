@@ -8,7 +8,7 @@
 struct xcb_connection_t;
 typedef struct _XDisplay Display;
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class LinuxHotkeyFilter;
 
@@ -66,6 +66,6 @@ private:
     LinuxHotkeyFilter* m_hotkeyFilter = nullptr;
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter
 
 #endif // __linux__

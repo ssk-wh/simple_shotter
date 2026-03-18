@@ -4,7 +4,7 @@
 #include <QPixmap>
 #include "platform/platform_api.h"
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class ScreenCapture : public QObject {
     Q_OBJECT
@@ -23,4 +23,4 @@ private:
     QPixmap m_lastCapture;
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter

@@ -3,7 +3,7 @@
 #include <QObject>
 #include "platform/platform_api.h"
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class WindowDetector : public QObject {
     Q_OBJECT
@@ -20,4 +20,4 @@ private:
     std::vector<WindowInfo> m_windows;
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter

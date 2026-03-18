@@ -3,7 +3,7 @@
 #include "core/screen_capture.h"
 #include "mock_platform_api.h"
 
-using namespace easyshotter;
+using namespace simpleshotter;
 
 class TestScreenCapture : public QObject {
     Q_OBJECT

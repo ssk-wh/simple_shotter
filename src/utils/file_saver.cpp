@@ -3,7 +3,7 @@
 #include <QDateTime>
 #include <QDir>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 FileSaver::FileSaver(QObject* parent)
     : QObject(parent)
@@ -48,7 +48,7 @@ FileSaver::Format FileSaver::defaultFormat() const
 QString FileSaver::generateFileName(Format format)
 {
     QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
-    return QString("easyshotter_%1.%2").arg(timestamp, formatExtension(format));
+    return QString("simpleshotter_%1.%2").arg(timestamp, formatExtension(format));
 }
 
 const char* FileSaver::formatExtension(Format format)
@@ -61,4 +61,4 @@ const char* FileSaver::formatExtension(Format format)
     return "png";
 }
 
-} // namespace easyshotter
+} // namespace simpleshotter

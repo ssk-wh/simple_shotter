@@ -1,4 +1,4 @@
-# EasyShotter
+# SimpleShotter
 
 跨平台截图工具，类似 Snipaste，支持自动识别窗口区域和控件。
 
@@ -49,7 +49,7 @@ cmake --build build
 dpkg-buildpackage -us -uc -b
 
 # Windows NSIS 安装包
-cd installer && makensis EasyShotter.nsi
+cd installer && makensis SimpleShotter.nsi
 ```
 
 ## CI/CD

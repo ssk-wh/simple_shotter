@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QPixmap>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class ClipboardManager : public QObject {
     Q_OBJECT
@@ -14,4 +14,4 @@ public:
     void copyToClipboard(const QPixmap& pixmap);
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter

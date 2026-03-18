@@ -1,6 +1,6 @@
 #include "window_detector.h"
 
-namespace easyshotter {
+namespace simpleshotter {
 
 WindowDetector::WindowDetector(PlatformApi* api, QObject* parent)
     : QObject(parent)
@@ -30,4 +30,4 @@ const std::vector<WindowInfo>& WindowDetector::windows() const
     return m_windows;
 }
 
-} // namespace easyshotter
+} // namespace simpleshotter

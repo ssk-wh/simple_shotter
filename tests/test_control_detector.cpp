@@ -2,7 +2,7 @@
 #include "core/control_detector.h"
 #include "mock_platform_api.h"
 
-using namespace easyshotter;
+using namespace simpleshotter;
 
 class TestControlDetector : public QObject {
     Q_OBJECT

@@ -1,17 +1,17 @@
 {
   "_desc": "Claude Code NSIS 打包 skill (/nsis-pack) 的项目配置文件",
-  "appName": "EasyShotter",
+  "appName": "SimpleShotter",
   "version": "0.2.0",
-  "nsiScript": "installer/EasyShotter.nsi",
+  "nsiScript": "installer/SimpleShotter.nsi",
   "build": {
-    "command": "cmd //c \"call \\\"D:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\\\" >nul 2>&1 && cd /d D:\\iflytek_projects\\easy_shotter && cmake --build build --config Release --target EasyShotter\"",
+    "command": "cmake -B build -DCMAKE_PREFIX_PATH=D:/Qt/5.15.2/msvc2019_64 && cmake --build build --config Release --target SimpleShotter",
     "outputDir": "build/src/Release",
-    "exe": "EasyShotter.exe"
+    "exe": "SimpleShotter.exe"
   },
   "dist": {
     "dir": "installer/dist",
     "qtPlugins": ["platforms", "imageformats", "iconengines", "styles"],
     "extraFiles": ["resources/app_icon.ico"]
   },
-  "output": "installer/EasyShotter-0.2.0-Setup.exe"
+  "output": "installer/SimpleShotter-0.2.0-Setup.exe"
 }

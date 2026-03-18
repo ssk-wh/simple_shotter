@@ -5,7 +5,7 @@
 #include <QApplication>
 #include <QScreen>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 ToolbarWidget::ToolbarWidget(QWidget* parent)
     : QWidget(parent)
@@ -414,4 +414,4 @@ void ToolbarWidget::showSaveMenu(int buttonIndex)
     m_saveMenu->showAt(menuPos);
 }
 
-} // namespace easyshotter
+} // namespace simpleshotter

@@ -5,7 +5,7 @@
 #include <QPoint>
 #include <array>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class RegionSelector : public QObject {
     Q_OBJECT
@@ -52,4 +52,4 @@ private:
     bool m_isSelecting = false;
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter

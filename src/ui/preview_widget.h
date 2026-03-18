@@ -5,7 +5,7 @@
 #include <QImage>
 #include <QPoint>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class PreviewWidget : public QWidget {
     Q_OBJECT
@@ -33,4 +33,4 @@ private:
     QPoint m_currentPos;
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter

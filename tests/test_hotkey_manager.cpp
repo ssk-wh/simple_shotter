@@ -2,7 +2,7 @@
 #include "utils/hotkey_manager.h"
 #include "mock_platform_api.h"
 
-using namespace easyshotter;
+using namespace simpleshotter;
 
 class TestHotkeyManager : public QObject {
     Q_OBJECT

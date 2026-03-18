@@ -1,6 +1,6 @@
 #include "control_detector.h"
 
-namespace easyshotter {
+namespace simpleshotter {
 
 ControlDetector::ControlDetector(PlatformApi* api, QObject* parent)
     : QObject(parent)
@@ -28,4 +28,4 @@ ControlInfo ControlDetector::findControlAt(const QPoint& screenPos)
     return m_lastResult;
 }
 
-} // namespace easyshotter
+} // namespace simpleshotter

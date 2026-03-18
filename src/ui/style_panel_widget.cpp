@@ -5,7 +5,7 @@
 #include <QApplication>
 #include <QScreen>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 const QColor StylePanelWidget::kPresetColors[] = {
     QColor(255, 0, 0),      // Red
@@ -335,4 +335,4 @@ void StylePanelWidget::leaveEvent(QEvent* event)
     update();
 }
 
-} // namespace easyshotter
+} // namespace simpleshotter

@@ -1,6 +1,6 @@
 #include "hotkey_manager.h"
 
-namespace easyshotter {
+namespace simpleshotter {
 
 HotkeyManager::HotkeyManager(PlatformApi* api, QObject* parent)
     : QObject(parent)
@@ -31,4 +31,4 @@ void HotkeyManager::unregisterAll()
     m_registeredIds.clear();
 }
 
-} // namespace easyshotter
+} // namespace simpleshotter

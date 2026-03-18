@@ -1,4 +1,4 @@
-# EasyShotter 测试验证方案
+# SimpleShotter 测试验证方案
 
 ## 目录
 
@@ -123,7 +123,7 @@ tests/
 | FS-002 | 保存JPG到桌面 | 有效 QPixmap | 调用 `saveToDesktop(pixmap, "jpg")` | 桌面生成 JPG 文件，文件非空 | P0 |
 | FS-003 | 保存BMP到桌面 | 有效 QPixmap | 调用 `saveToDesktop(pixmap, "bmp")` | 桌面生成 BMP 文件，文件非空 | P1 |
 | FS-004 | 保存到自定义目录 | 指定目录存在 | 调用 `saveToPath(pixmap, path, format)` | 文件保存到指定路径 | P0 |
-| FS-005 | 文件名自动生成 | 无 | 保存截图 | 文件名格式为 `EasyShotter_YYYYMMDD_HHmmss.png` | P0 |
+| FS-005 | 文件名自动生成 | 无 | 保存截图 | 文件名格式为 `SimpleShotter_YYYYMMDD_HHmmss.png` | P0 |
 | FS-006 | 文件名冲突-秒级 | 同秒内保存两次 | 快速连续保存 | 第二个文件名自动添加序号后缀，不覆盖 | P0 |
 | FS-007 | 目标目录不存在 | 目录不存在 | 保存到不存在的路径 | 返回 false 或自动创建目录，不崩溃 | P1 |
 | FS-008 | 只读目录处理 | 目标目录只读 | 保存到只读目录 | 返回 false，报告错误信息 | P1 |

@@ -6,7 +6,7 @@
 #include "save_menu_widget.h"
 #include "style_panel_widget.h"
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class ToolbarWidget : public QWidget {
     Q_OBJECT
@@ -77,4 +77,4 @@ private:
     QRect m_lastSelectionRect;
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter

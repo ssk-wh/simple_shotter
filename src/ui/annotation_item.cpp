@@ -2,7 +2,7 @@
 #include <QPainterPath>
 #include <QtMath>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 // ---- RectAnnotation ----
 
@@ -220,4 +220,4 @@ void AnnotationManager::drawAll(QPainter& painter) const
     }
 }
 
-} // namespace easyshotter
+} // namespace simpleshotter

@@ -9,7 +9,7 @@
 #include <memory>
 #include <functional>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 using NativeWindowHandle = quintptr;
 
@@ -79,4 +79,4 @@ public:
     static std::unique_ptr<PlatformApi> create();
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter

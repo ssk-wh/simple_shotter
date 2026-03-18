@@ -3,7 +3,7 @@
 #include <QObject>
 #include "platform/platform_api.h"
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class HotkeyManager : public QObject {
     Q_OBJECT
@@ -22,4 +22,4 @@ private:
     QList<int> m_registeredIds;
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter

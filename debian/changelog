@@ -1,4 +1,4 @@
-easyshotter (0.2.0-1) unstable; urgency=medium
+simpleshotter (0.2.0-1) unstable; urgency=medium
 
   * Annotation tools (pen, arrow, text, mosaic)
   * Save menu with desktop/custom directory options
@@ -7,9 +7,9 @@ easyshotter (0.2.0-1) unstable; urgency=medium
   * Global hotkey support via X11 XGrabKey
   * Single instance mechanism
 
- -- EasyShotter Developers <dev@easyshotter.org>  Mon, 10 Mar 2026 12:00:00 +0800
+ -- SimpleShotter Developers <dev@simpleshotter.org>  Mon, 10 Mar 2026 12:00:00 +0800
 
-easyshotter (0.1.0-1) unstable; urgency=medium
+simpleshotter (0.1.0-1) unstable; urgency=medium
 
   * Initial release
   * Full-screen and region screenshot
@@ -18,4 +18,4 @@ easyshotter (0.1.0-1) unstable; urgency=medium
   * Clipboard copy and file saving
   * System tray integration
 
- -- EasyShotter Developers <dev@easyshotter.org>  Mon, 03 Mar 2026 12:00:00 +0800
+ -- SimpleShotter Developers <dev@simpleshotter.org>  Mon, 03 Mar 2026 12:00:00 +0800

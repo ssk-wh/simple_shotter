@@ -1,6 +1,6 @@
 #include "screen_capture.h"
 
-namespace easyshotter {
+namespace simpleshotter {
 
 ScreenCapture::ScreenCapture(PlatformApi* api, QObject* parent)
     : QObject(parent)
@@ -24,4 +24,4 @@ QPixmap ScreenCapture::captureRegion(const QRect& region)
     return m_lastCapture;
 }
 
-} // namespace easyshotter
+} // namespace simpleshotter

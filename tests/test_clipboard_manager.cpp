@@ -4,7 +4,7 @@
 #include <QImage>
 #include "utils/clipboard_manager.h"
 
-using namespace easyshotter;
+using namespace simpleshotter;
 
 class TestClipboardManager : public QObject {
     Q_OBJECT

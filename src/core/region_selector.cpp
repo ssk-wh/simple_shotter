@@ -1,7 +1,7 @@
 #include "region_selector.h"
 #include <algorithm>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 RegionSelector::RegionSelector(QObject* parent)
     : QObject(parent)
@@ -142,4 +142,4 @@ bool RegionSelector::isSelecting() const
     return m_isSelecting;
 }
 
-} // namespace easyshotter
+} // namespace simpleshotter

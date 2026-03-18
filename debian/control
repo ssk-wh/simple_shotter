@@ -1,7 +1,7 @@
-Source: easyshotter
+Source: simpleshotter
 Section: graphics
 Priority: optional
-Maintainer: EasyShotter Developers <dev@easyshotter.org>
+Maintainer: SimpleShotter Developers <dev@simpleshotter.org>
 Build-Depends: debhelper-compat (= 12),
                cmake (>= 3.16),
                qtbase5-dev,
@@ -14,13 +14,13 @@ Build-Depends: debhelper-compat (= 12),
                libglib2.0-dev,
                pkg-config
 Standards-Version: 4.5.0
-Homepage: https://github.com/ssk-wh/easy_shotter
+Homepage: https://github.com/ssk-wh/simple_shotter
 
-Package: easyshotter
+Package: simpleshotter
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Cross-platform screenshot tool with window and control detection
- EasyShotter is a Snipaste-like screenshot tool that supports automatic
+ SimpleShotter is a Snipaste-like screenshot tool that supports automatic
  window region detection and UI control detection via AT-SPI.
  Features include region selection, global hotkey, clipboard copy,
  file saving, and annotation tools.

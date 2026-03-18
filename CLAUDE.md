@@ -1,4 +1,4 @@
-# EasyShotter - 跨平台截图应用
+# SimpleShotter - 跨平台截图应用
 
 ## 项目概述
 类似 Snipaste 的跨平台截图工具，支持 Windows/Linux，自动识别窗口区域和控件。
@@ -15,7 +15,7 @@
 - 成员变量: `m_` 前缀 (如 `m_screenPixmap`)
 - 常量: UPPER_SNAKE_CASE
 - 文件名: snake_case (如 `screen_capture.h`)
-- 命名空间: `easyshotter`
+- 命名空间: `simpleshotter`
 - 头文件使用 `#pragma once`
 
 ## UI 规则
@@ -25,7 +25,7 @@
 
 ## 项目结构
 ```
-easy_shotter/
+simple_shotter/
 ├── CMakeLists.txt              # 顶层 CMake
 ├── src/
 │   ├── CMakeLists.txt

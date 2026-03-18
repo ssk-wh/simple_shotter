@@ -6,7 +6,7 @@
 #include <QRect>
 #include "annotation_item.h"
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class StylePanelWidget : public QWidget {
     Q_OBJECT
@@ -79,4 +79,4 @@ private:
     HitResult m_hovered;
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter

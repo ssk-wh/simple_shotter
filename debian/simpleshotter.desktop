@@ -1,8 +1,8 @@
 [Desktop Entry]
-Name=EasyShotter
+Name=SimpleShotter
 Comment=Screenshot tool with window and control detection
-Exec=easyshotter
-Icon=easyshotter
+Exec=simpleshotter
+Icon=simpleshotter
 Terminal=false
 Type=Application
 Categories=Graphics;Utility;

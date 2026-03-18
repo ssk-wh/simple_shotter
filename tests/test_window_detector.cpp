@@ -2,7 +2,7 @@
 #include "core/window_detector.h"
 #include "mock_platform_api.h"
 
-using namespace easyshotter;
+using namespace simpleshotter;
 
 class TestWindowDetector : public QObject {
     Q_OBJECT

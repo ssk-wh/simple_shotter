@@ -43,7 +43,7 @@ jobs:
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
             VERSION="${GITHUB_REF#refs/tags/v}"
           else
-            VERSION=$(grep -oP 'project\(EasyShotter VERSION \K[0-9.]+' CMakeLists.txt)
+            VERSION=$(grep -oP 'project\(SimpleShotter VERSION \K[0-9.]+' CMakeLists.txt)
           fi
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "Building version: $VERSION"
@@ -54,13 +54,13 @@ jobs:
           rm -rf installer/dist
           mkdir -p installer/dist/platforms
 
-          cp build/src/EasyShotter.exe installer/dist/
+          cp build/src/SimpleShotter.exe installer/dist/
           cp resources/app_icon.ico installer/dist/
 
           # Collect MinGW runtime DLLs
           while IFS= read -r dll; do
             cp "$dll" installer/dist/
-          done < <(ldd build/src/EasyShotter.exe | grep -i mingw64 | awk '{print $3}')
+          done < <(ldd build/src/SimpleShotter.exe | grep -i mingw64 | awk '{print $3}')
 
           # Qt platform plugin
           QT_PLUGIN_DIR=$(qmake -query QT_INSTALL_PLUGINS 2>/dev/null || echo "/mingw64/share/qt5/plugins")
@@ -72,19 +72,19 @@ jobs:
         run: |
           set -euo pipefail
           cd installer
-          sed -i "s/!define APP_VERSION \".*\"/!define APP_VERSION \"$VERSION\"/" EasyShotter.nsi
-          makensis EasyShotter.nsi
+          sed -i "s/!define APP_VERSION \".*\"/!define APP_VERSION \"$VERSION\"/" SimpleShotter.nsi
+          makensis SimpleShotter.nsi
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
-          name: EasyShotter-${{ env.VERSION }}-Setup.zip
-          path: installer/EasyShotter-*-Setup.exe
+          name: SimpleShotter-${{ env.VERSION }}-Setup.zip
+          path: installer/SimpleShotter-*-Setup.exe
 
       - name: Upload portable
         uses: actions/upload-artifact@v4
         with:
-          name: EasyShotter-${{ env.VERSION }}-Portable.zip
+          name: SimpleShotter-${{ env.VERSION }}-Portable.zip
           path: installer/dist/
 
   build-linux:
@@ -112,7 +112,7 @@ jobs:
         run: |
           cd resources
           for size in 16 24 32 48 128 256 512; do
-            rsvg-convert -w $size -h $size app-icon.svg -o easyshotter_${size}.png
+            rsvg-convert -w $size -h $size app-icon.svg -o simpleshotter_${size}.png
           done
 
       - name: Build DEB package
@@ -121,12 +121,12 @@ jobs:
       - name: Collect artifacts
         run: |
           mkdir -p dist
-          cp ../easyshotter_*.deb dist/
+          cp ../simpleshotter_*.deb dist/
 
       - name: Upload DEB artifact
         uses: actions/upload-artifact@v4
         with:
-          name: easyshotter_${{ steps.version.outputs.version }}_amd64.zip
+          name: simpleshotter_${{ steps.version.outputs.version }}_amd64.zip
           path: dist/*.deb
 
   release:

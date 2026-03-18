@@ -34,12 +34,14 @@ elseif(UNIX AND NOT APPLE)
     )
 endif()
 
-set(RESOURCE_FILES)
+set(RESOURCE_FILES
+    ${CMAKE_SOURCE_DIR}/resources/resources.qrc
+)
 if(WIN32)
     list(APPEND RESOURCE_FILES ${CMAKE_SOURCE_DIR}/resources/app_icon.rc)
 endif()
 
-add_executable(EasyShotter WIN32
+add_executable(SimpleShotter WIN32
     main.cpp
     ${CORE_SOURCES}
     ${UI_SOURCES}
@@ -48,28 +50,28 @@ add_executable(EasyShotter WIN32
     ${RESOURCE_FILES}
 )
 
-target_include_directories(EasyShotter PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(SimpleShotter PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(EasyShotter PRIVATE
+target_link_libraries(SimpleShotter PRIVATE
     Qt5::Core
     Qt5::Gui
     Qt5::Widgets
 )
 
 if(WIN32)
-    target_link_libraries(EasyShotter PRIVATE dwmapi user32 gdi32 ole32 oleaut32)
+    target_link_libraries(SimpleShotter PRIVATE dwmapi user32 gdi32 ole32 oleaut32)
 elseif(UNIX AND NOT APPLE)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(XCB REQUIRED xcb xcb-ewmh xcb-icccm)
     pkg_check_modules(X11 REQUIRED x11)
     pkg_check_modules(ATSPI REQUIRED atspi-2 gobject-2.0)
 
-    target_include_directories(EasyShotter PRIVATE
+    target_include_directories(SimpleShotter PRIVATE
         ${XCB_INCLUDE_DIRS}
         ${X11_INCLUDE_DIRS}
         ${ATSPI_INCLUDE_DIRS}
     )
-    target_link_libraries(EasyShotter PRIVATE
+    target_link_libraries(SimpleShotter PRIVATE
         Qt5::X11Extras
         ${XCB_LIBRARIES}
         ${X11_LIBRARIES}
@@ -78,19 +80,19 @@ elseif(UNIX AND NOT APPLE)
 endif()
 
 if(UNIX AND NOT APPLE)
-    set_target_properties(EasyShotter PROPERTIES OUTPUT_NAME easyshotter)
+    set_target_properties(SimpleShotter PROPERTIES OUTPUT_NAME simpleshotter)
 endif()
 
-install(TARGETS EasyShotter RUNTIME DESTINATION bin)
+install(TARGETS SimpleShotter RUNTIME DESTINATION bin)
 if(UNIX AND NOT APPLE)
     install(FILES ${CMAKE_SOURCE_DIR}/resources/app-icon.svg
             DESTINATION share/icons/hicolor/scalable/apps
-            RENAME easyshotter.svg)
+            RENAME simpleshotter.svg)
     foreach(_size 16 24 32 48 128 256 512)
-        install(FILES ${CMAKE_SOURCE_DIR}/resources/easyshotter_${_size}.png
+        install(FILES ${CMAKE_SOURCE_DIR}/resources/simpleshotter_${_size}.png
                 DESTINATION share/icons/hicolor/${_size}x${_size}/apps
-                RENAME easyshotter.png)
+                RENAME simpleshotter.png)
     endforeach()
-    install(FILES ${CMAKE_SOURCE_DIR}/debian/easyshotter.desktop
+    install(FILES ${CMAKE_SOURCE_DIR}/debian/simpleshotter.desktop
             DESTINATION share/applications)
 endif()

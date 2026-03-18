@@ -9,7 +9,7 @@
 #include <windows.h>
 #endif
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class PlatformApi;
 class CaptureOverlay;
@@ -55,4 +55,4 @@ private:
 #endif
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter

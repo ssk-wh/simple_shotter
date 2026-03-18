@@ -1,4 +1,4 @@
-# EasyShotter 架构设计文档
+# SimpleShotter 架构设计文档
 
 ## 1. 窗口检测方案
 
@@ -233,7 +233,7 @@ AtspiRole role = atspi_accessible_get_role(element, nullptr);
 #include <memory>
 #include <cstdint>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 // 平台窗口句柄的统一类型
 using NativeWindowHandle = quintptr;  // HWND on Windows, xcb_window_t on Linux
@@ -287,7 +287,7 @@ struct ControlInfo {
     QString className;     // 原生类名（调试用）
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter
 ```
 
 ### 3.2 平台抽象接口
@@ -295,7 +295,7 @@ struct ControlInfo {
 ```cpp
 // platform/platform_api.h（续）
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class PlatformApi {
 public:
@@ -341,7 +341,7 @@ public:
     static std::unique_ptr<PlatformApi> create();
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter
 ```
 
 ### 3.3 工厂方法实现
@@ -356,7 +356,7 @@ public:
 #include "linux/linux_platform_api.h"
 #endif
 
-namespace easyshotter {
+namespace simpleshotter {
 
 std::unique_ptr<PlatformApi> PlatformApi::create() {
 #ifdef Q_OS_WIN
@@ -368,7 +368,7 @@ std::unique_ptr<PlatformApi> PlatformApi::create() {
 #endif
 }
 
-} // namespace easyshotter
+} // namespace simpleshotter
 ```
 
 ### 3.4 Windows 实现类声明
@@ -380,7 +380,7 @@ std::unique_ptr<PlatformApi> PlatformApi::create() {
 #include <Windows.h>
 #include <UIAutomation.h>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class WinPlatformApi : public PlatformApi {
 public:
@@ -404,7 +404,7 @@ private:
     std::unordered_map<int, std::function<void()>> m_hotkeyCallbacks;
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter
 ```
 
 ---
@@ -492,7 +492,7 @@ ClipboardManager::copy(pixmap) 或 FileSaver::save(pixmap, path)
 #pragma once
 #include "../platform/platform_api.h"
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class WindowDetector {
 public:
@@ -512,7 +512,7 @@ private:
     std::vector<WindowInfo> m_windows;
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter
 ```
 
 ```cpp
@@ -520,7 +520,7 @@ private:
 #pragma once
 #include "../platform/platform_api.h"
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class ControlDetector {
 public:
@@ -535,7 +535,7 @@ private:
     QPoint m_lastPos;
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter
 ```
 
 **自动识别策略**：
@@ -564,7 +564,7 @@ private:
 #include <QPainter>
 #include <QRect>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class AnnotationItem {
 public:
@@ -581,7 +581,7 @@ class TextItem : public AnnotationItem { ... };
 class PenStrokeItem : public AnnotationItem { ... };   // 自由画笔
 class MosaicItem : public AnnotationItem { ... };      // 马赛克/模糊
 
-} // namespace easyshotter
+} // namespace simpleshotter
 ```
 
 ```cpp
@@ -590,7 +590,7 @@ class MosaicItem : public AnnotationItem { ... };      // 马赛克/模糊
 #include <QPoint>
 #include <QMouseEvent>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class AnnotationLayer;  // forward
 
@@ -616,7 +616,7 @@ class TextTool : public AnnotationTool { ... };
 class PenTool : public AnnotationTool { ... };
 class MosaicTool : public AnnotationTool { ... };
 
-} // namespace easyshotter
+} // namespace simpleshotter
 ```
 
 ```cpp
@@ -628,7 +628,7 @@ class MosaicTool : public AnnotationTool { ... };
 #include <memory>
 #include <stack>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class AnnotationLayer {
 public:
@@ -664,7 +664,7 @@ private:
     int m_undoIndex = -1;  // 当前在 undoStack 中的位置
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter
 ```
 
 ### 5.3 撤销/重做策略
@@ -694,7 +694,7 @@ undoStack:  [S0] [S1] [S2] [S4]   // S3 被丢弃
 #pragma once
 #include <QWidget>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class PinWindow : public QWidget {
     Q_OBJECT
@@ -715,7 +715,7 @@ private:
     double m_scale = 1.0;
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter
 ```
 
 **关键特性**：
@@ -743,7 +743,7 @@ CaptureOverlay 是截图交互的核心 UI 组件：
 #include "../core/control_detector.h"
 #include "../core/region_selector.h"
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class CaptureOverlay : public QWidget {
     Q_OBJECT
@@ -788,7 +788,7 @@ private:
     bool m_detectControls = true;    // 是否检测控件级别
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter
 ```
 
 ### 7.2 绘制策略
@@ -838,7 +838,7 @@ void CaptureOverlay::startCapture() {
 #include <QRect>
 #include <QPoint>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class RegionSelector {
 public:
@@ -884,7 +884,7 @@ private:
     QPoint m_resizeStartPos;
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter
 ```
 
 ---

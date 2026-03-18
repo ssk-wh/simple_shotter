@@ -1,13 +1,13 @@
-; EasyShotter NSIS Installer Script
+﻿; SimpleShotter NSIS Installer Script
 
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
 
 ; ============== Basic Info ==============
-!define APP_NAME "EasyShotter"
+!define APP_NAME "SimpleShotter"
 !define APP_VERSION "0.2.0"
-!define APP_PUBLISHER "EasyShotter"
-!define APP_EXE "EasyShotter.exe"
+!define APP_PUBLISHER "SimpleShotter"
+!define APP_EXE "SimpleShotter.exe"
 !define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}"
 
 Name "${APP_NAME} ${APP_VERSION}"
@@ -48,9 +48,15 @@ Section "主程序 (必需)" SecMain
     File "dist\*.dll"
     File /nonfatal "dist\app_icon.ico"
 
-    ; Qt plugins - platforms
+    ; Qt plugins
     SetOutPath "$INSTDIR\platforms"
     File "dist\platforms\*.dll"
+    SetOutPath "$INSTDIR\imageformats"
+    File "dist\imageformats\*.dll"
+    SetOutPath "$INSTDIR\iconengines"
+    File "dist\iconengines\*.dll"
+    SetOutPath "$INSTDIR\styles"
+    File /nonfatal "dist\styles\*.dll"
 
     ; Create uninstaller
     SetOutPath "$INSTDIR"
@@ -82,7 +88,7 @@ SectionEnd
 
 ; ============== Section Descriptions ==============
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecMain} "安装 EasyShotter 主程序及所有必需文件"
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecMain} "安装 SimpleShotter 主程序及所有必需文件"
     !insertmacro MUI_DESCRIPTION_TEXT ${SecStartMenu} "在开始菜单创建快捷方式"
     !insertmacro MUI_DESCRIPTION_TEXT ${SecDesktop} "在桌面创建快捷方式"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
@@ -102,6 +108,9 @@ Section "Uninstall"
     Delete "$INSTDIR\Uninstall.exe"
 
     RMDir /r "$INSTDIR\platforms"
+    RMDir /r "$INSTDIR\imageformats"
+    RMDir /r "$INSTDIR\iconengines"
+    RMDir /r "$INSTDIR\styles"
     RMDir "$INSTDIR"
 
     ; Remove shortcuts

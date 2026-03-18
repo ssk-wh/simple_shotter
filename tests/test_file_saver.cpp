@@ -5,7 +5,7 @@
 #include <QRegularExpression>
 #include "utils/file_saver.h"
 
-using namespace easyshotter;
+using namespace simpleshotter;
 
 class TestFileSaver : public QObject {
     Q_OBJECT
@@ -70,8 +70,8 @@ private slots:
     void test_generateFileName_containsTimestamp()
     {
         QString name = FileSaver::generateFileName(FileSaver::Format::PNG);
-        // Pattern: easyshotter_YYYYMMDD_HHmmss.png
-        QRegularExpression re(R"(easyshotter_\d{8}_\d{6}\.png)");
+        // Pattern: simpleshotter_YYYYMMDD_HHmmss.png
+        QRegularExpression re(R"(simpleshotter_\d{8}_\d{6}\.png)");
         QVERIFY2(re.match(name).hasMatch(),
                  qPrintable(QString("Filename '%1' doesn't match expected pattern").arg(name)));
     }

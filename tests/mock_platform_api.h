@@ -4,7 +4,7 @@
 #include <QPixmap>
 #include <QImage>
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class MockPlatformApi : public PlatformApi {
 public:
@@ -78,4 +78,4 @@ public:
     }
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter

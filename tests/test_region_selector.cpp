@@ -2,7 +2,7 @@
 #include <QSignalSpy>
 #include "core/region_selector.h"
 
-using namespace easyshotter;
+using namespace simpleshotter;
 
 class TestRegionSelector : public QObject {
     Q_OBJECT

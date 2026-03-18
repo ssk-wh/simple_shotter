@@ -14,7 +14,7 @@
 
 class QTextEdit;
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class ToolbarWidget;
 class PreviewWidget;
@@ -133,4 +133,4 @@ private:
     PreviewWidget* m_preview;
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter

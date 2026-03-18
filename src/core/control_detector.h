@@ -5,7 +5,7 @@
 #include <QElapsedTimer>
 #include "platform/platform_api.h"
 
-namespace easyshotter {
+namespace simpleshotter {
 
 class ControlDetector : public QObject {
     Q_OBJECT
@@ -24,4 +24,4 @@ private:
     QElapsedTimer m_throttleTimer;
 };
 
-} // namespace easyshotter
+} // namespace simpleshotter

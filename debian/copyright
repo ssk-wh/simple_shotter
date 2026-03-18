@@ -1,9 +1,9 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: EasyShotter
-Source: https://github.com/ssk-wh/easy_shotter
+Upstream-Name: SimpleShotter
+Source: https://github.com/ssk-wh/simple_shotter
 
 Files: *
-Copyright: 2026 EasyShotter Developers
+Copyright: 2026 SimpleShotter Developers
 License: MIT
 
 License: MIT
