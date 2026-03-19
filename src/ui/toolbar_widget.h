@@ -34,6 +34,7 @@ protected:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
     void leaveEvent(QEvent* event) override;
+    void hideEvent(QHideEvent* event) override;
 
 private:
     struct ButtonInfo {

@@ -62,6 +62,7 @@ target_link_libraries(SimpleShotter PRIVATE
     Qt5::Gui
     Qt5::Widgets
     Qt5::Svg
+    Qt5::Concurrent
 )
 
 if(WIN32)
@@ -87,6 +88,14 @@ endif()
 
 if(UNIX AND NOT APPLE)
     set_target_properties(SimpleShotter PROPERTIES OUTPUT_NAME simpleshotter)
+endif()
+
+if(WIN32)
+    add_custom_command(TARGET SimpleShotter POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${CMAKE_SOURCE_DIR}/resources/app_icon.ico
+            $<TARGET_FILE_DIR:SimpleShotter>/app_icon.ico
+    )
 endif()
 
 install(TARGETS SimpleShotter RUNTIME DESTINATION bin)

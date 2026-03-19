@@ -472,6 +472,55 @@ void WinPlatformApi::unregisterHotkey(int hotkeyId)
     m_hotkeyCallbacks.erase(hotkeyId);
 }
 
+std::vector<ControlInfo> PlatformApi::getWindowControlsAsync(NativeWindowHandle window)
+{
+    std::vector<ControlInfo> result;
+
+    // Initialize COM for this thread (MTA is fine for background threads)
+    CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
+    IUIAutomation* pAutomation = nullptr;
+    HRESULT hr = CoCreateInstance(CLSID_CUIAutomation, nullptr,
+                                  CLSCTX_INPROC_SERVER, IID_IUIAutomation,
+                                  reinterpret_cast<void**>(&pAutomation));
+    if (SUCCEEDED(hr) && pAutomation) {
+        HWND hwnd = reinterpret_cast<HWND>(window);
+        IUIAutomationElement* pWindowElement = nullptr;
+        hr = pAutomation->ElementFromHandle(hwnd, &pWindowElement);
+        if (SUCCEEDED(hr) && pWindowElement) {
+            IUIAutomationTreeWalker* pWalker = nullptr;
+            hr = pAutomation->get_ControlViewWalker(&pWalker);
+            if (SUCCEEDED(hr) && pWalker) {
+                collectControlsRecursive(pWalker, pWindowElement, result, 0);
+                pWalker->Release();
+            }
+            pWindowElement->Release();
+        }
+        pAutomation->Release();
+    }
+
+    // Convert physical to logical coordinates using per-monitor DPI
+    for (auto& ctrl : result) {
+        HMONITOR hMon = MonitorFromPoint(
+            {ctrl.rect.left(), ctrl.rect.top()}, MONITOR_DEFAULTTONEAREST);
+        UINT dpiX = 96, dpiY = 96;
+        // GetDpiForMonitor requires shcore.dll (Win 8.1+)
+        typedef HRESULT(WINAPI* GetDpiFunc)(HMONITOR, int, UINT*, UINT*);
+        static auto getDpi = reinterpret_cast<GetDpiFunc>(
+            GetProcAddress(GetModuleHandleW(L"shcore.dll"), "GetDpiForMonitor"));
+        if (getDpi) getDpi(hMon, 0 /*MDT_EFFECTIVE_DPI*/, &dpiX, &dpiY);
+        qreal dpr = dpiX / 96.0;
+        if (dpr > 1.0) {
+            ctrl.rect = QRect(
+                qRound(ctrl.rect.x() / dpr), qRound(ctrl.rect.y() / dpr),
+                qRound(ctrl.rect.width() / dpr), qRound(ctrl.rect.height() / dpr));
+        }
+    }
+
+    CoUninitialize();
+    return result;
+}
+
 std::unique_ptr<PlatformApi> PlatformApi::create()
 {
     return std::make_unique<WinPlatformApi>();

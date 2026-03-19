@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets Svg)
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets Svg Concurrent)
 if(UNIX AND NOT APPLE)
     find_package(Qt5 REQUIRED COMPONENTS X11Extras)
 endif()

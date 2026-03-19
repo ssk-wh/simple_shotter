@@ -37,6 +37,8 @@ private:
     void setupHotkey();
     void setupSingleInstanceListener();
     QIcon createTrayIcon() const;
+    bool isAutoStartEnabled() const;
+    void setAutoStartEnabled(bool enabled);
 
     std::unique_ptr<PlatformApi> m_platformApi;
     CaptureOverlay* m_captureOverlay = nullptr;

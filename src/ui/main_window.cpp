@@ -10,6 +10,7 @@
 #include <QStandardPaths>
 #include <QPainter>
 #include <QPixmap>
+#include <QSettings>
 
 namespace simpleshotter {
 
@@ -49,10 +50,14 @@ MainWindow::~MainWindow()
 void MainWindow::setupTrayIcon()
 {
     m_trayMenu = new QMenu(this);
-    auto* settingsAction = m_trayMenu->addAction("Settings");
-    settingsAction->setEnabled(false); // Reserved for future
+
+    auto* autoStartAction = m_trayMenu->addAction(QString::fromUtf8("开机自启动"));
+    autoStartAction->setCheckable(true);
+    autoStartAction->setChecked(isAutoStartEnabled());
+    connect(autoStartAction, &QAction::toggled, this, &MainWindow::setAutoStartEnabled);
+
     m_trayMenu->addSeparator();
-    m_trayMenu->addAction("Quit", qApp, &QApplication::quit);
+    m_trayMenu->addAction(QString::fromUtf8("退出"), qApp, &QApplication::quit);
 
     m_trayIcon = new QSystemTrayIcon(this);
     m_trayIcon->setContextMenu(m_trayMenu);
@@ -75,8 +80,13 @@ void MainWindow::setupHotkey()
 
 QIcon MainWindow::createTrayIcon() const
 {
-    // Load SVG icon from embedded Qt resource
-    QIcon icon(":/app-icon.svg");
+    // Try ICO file next to executable first (deployed)
+    QString appDir = QCoreApplication::applicationDirPath();
+    QIcon icon(appDir + "/app_icon.ico");
+    if (!icon.isNull() && !icon.availableSizes().isEmpty()) return icon;
+
+    // Try SVG from embedded Qt resource
+    icon = QIcon(":/app-icon.svg");
     if (!icon.isNull() && !icon.availableSizes().isEmpty()) return icon;
 
     // Final fallback: draw programmatically
@@ -93,6 +103,34 @@ QIcon MainWindow::createTrayIcon() const
     painter.drawEllipse(QPoint(16, 18), 5, 5);
     painter.end();
     return QIcon(pixmap);
+}
+
+static const char kAutoStartRegKey[] = "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+static const char kAppName[] = "SimpleShotter";
+
+bool MainWindow::isAutoStartEnabled() const
+{
+#ifdef Q_OS_WIN
+    QSettings reg(kAutoStartRegKey, QSettings::NativeFormat);
+    return reg.contains(kAppName);
+#else
+    return false;
+#endif
+}
+
+void MainWindow::setAutoStartEnabled(bool enabled)
+{
+#ifdef Q_OS_WIN
+    QSettings reg(kAutoStartRegKey, QSettings::NativeFormat);
+    if (enabled) {
+        QString appPath = QCoreApplication::applicationFilePath().replace('/', '\\');
+        reg.setValue(kAppName, QString("\"%1\"").arg(appPath));
+    } else {
+        reg.remove(kAppName);
+    }
+#else
+    Q_UNUSED(enabled)
+#endif
 }
 
 bool MainWindow::nativeEvent(const QByteArray& eventType, void* message, long* result)

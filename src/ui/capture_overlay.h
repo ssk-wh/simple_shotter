@@ -85,6 +85,7 @@ private:
 
     // Annotation helpers
     void raiseToolWidgets();
+    void restoreToolWidgets();
     void onToolSelected(AnnotationTool tool);
     void onUndo();
     void onRedo();
@@ -99,6 +100,7 @@ private:
     QColor annotationColor() const;
     int annotationPenWidth() const;
     int mosaicBlockSize() const;
+    int annotationFontSize() const;
 
     PlatformApi* m_api;
     State m_state = State::Idle;

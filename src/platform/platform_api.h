@@ -77,6 +77,9 @@ public:
     virtual void unregisterHotkey(int hotkeyId) = 0;
 
     static std::unique_ptr<PlatformApi> create();
+
+    // Thread-safe: creates its own COM instance, safe to call from any thread
+    static std::vector<ControlInfo> getWindowControlsAsync(NativeWindowHandle window);
 };
 
 } // namespace simpleshotter

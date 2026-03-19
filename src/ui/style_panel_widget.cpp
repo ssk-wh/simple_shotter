@@ -36,6 +36,7 @@ void StylePanelWidget::layoutForTool(AnnotationTool tool)
                       tool == AnnotationTool::Ellipse ||
                       tool == AnnotationTool::Arrow);
     m_showMosaicSize = (tool == AnnotationTool::Mosaic);
+    m_showFontSize = (tool == AnnotationTool::Text);
 
     m_colorRects.clear();
     m_penWidthRects.clear();
@@ -62,7 +63,7 @@ void StylePanelWidget::layoutForTool(AnnotationTool tool)
         y += kLabelHeight + 4;
 
         int x = kPadding;
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < kOptionCount; i++) {
             m_penWidthRects.append(QRect(x, y, kOptionWidth, kOptionHeight));
             x += kOptionWidth + kSwatchSpacing;
         }
@@ -75,20 +76,32 @@ void StylePanelWidget::layoutForTool(AnnotationTool tool)
         y += kLabelHeight + 4;
 
         int x = kPadding;
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < kOptionCount; i++) {
             m_mosaicSizeRects.append(QRect(x, y, kOptionWidth, kOptionHeight));
             x += kOptionWidth + kSwatchSpacing;
         }
         y += kOptionHeight + kPadding;
     }
 
-    if (!m_showPenWidth && !m_showMosaicSize && tool != AnnotationTool::Mosaic) {
-        // Text tool: just color
+    // Font size slider section
+    if (m_showFontSize) {
+        m_fontSizeLabelY = y;
+        y += kLabelHeight + 4;
+
+        int totalWidth = kPadding * 2 + kPresetColorCount * (kSwatchSize + kSwatchSpacing) - kSwatchSpacing;
+        int altWidth = kPadding * 2 + kOptionCount * (kOptionWidth + kSwatchSpacing) - kSwatchSpacing;
+        int sliderWidth = qMax(totalWidth, altWidth) - kPadding * 2;
+        m_sliderTrackRect = QRect(kPadding, y + (kSliderHeight - kSliderTrackHeight) / 2,
+                                   sliderWidth, kSliderTrackHeight);
+        y += kSliderHeight + kPadding;
+    }
+
+    if (!m_showPenWidth && !m_showMosaicSize && !m_showFontSize && tool != AnnotationTool::Mosaic) {
         y = y - kSectionGap + kPadding;
     }
 
     int totalWidth = kPadding * 2 + kPresetColorCount * (kSwatchSize + kSwatchSpacing) - kSwatchSpacing;
-    int altWidth = kPadding * 2 + 3 * (kOptionWidth + kSwatchSpacing) - kSwatchSpacing;
+    int altWidth = kPadding * 2 + kOptionCount * (kOptionWidth + kSwatchSpacing) - kSwatchSpacing;
     totalWidth = qMax(totalWidth, altWidth);
 
     setFixedSize(totalWidth, y);
@@ -131,6 +144,13 @@ StylePanelWidget::HitResult StylePanelWidget::hitTest(const QPoint& pos) const
         if (m_mosaicSizeRects[i].contains(pos))
             return {HitArea::MosaicSize, i};
     }
+    if (m_showFontSize && !m_sliderTrackRect.isNull()) {
+        QRect sliderHitArea = m_sliderTrackRect.adjusted(
+            -kSliderThumbRadius, -kSliderThumbRadius,
+            kSliderThumbRadius, kSliderThumbRadius);
+        if (sliderHitArea.contains(pos))
+            return {HitArea::FontSizeSlider, 0};
+    }
     return {HitArea::None, -1};
 }
 
@@ -154,6 +174,9 @@ void StylePanelWidget::paintEvent(QPaintEvent* event)
     }
     if (m_showMosaicSize) {
         drawMosaicSizeSection(painter);
+    }
+    if (m_showFontSize) {
+        drawFontSizeSection(painter);
     }
 }
 
@@ -291,8 +314,71 @@ void StylePanelWidget::drawMosaicSizeSection(QPainter& painter) const
     }
 }
 
+int StylePanelWidget::fontSizeFromSliderPos(int x) const
+{
+    int left = m_sliderTrackRect.left() + kSliderThumbRadius;
+    int right = m_sliderTrackRect.right() - kSliderThumbRadius;
+    if (right <= left) return kFontSizeMin;
+    double ratio = qBound(0.0, double(x - left) / (right - left), 1.0);
+    return qRound(kFontSizeMin + ratio * (kFontSizeMax - kFontSizeMin));
+}
+
+int StylePanelWidget::sliderPosFromFontSize(int size) const
+{
+    int left = m_sliderTrackRect.left() + kSliderThumbRadius;
+    int right = m_sliderTrackRect.right() - kSliderThumbRadius;
+    double ratio = double(size - kFontSizeMin) / (kFontSizeMax - kFontSizeMin);
+    return qRound(left + ratio * (right - left));
+}
+
+void StylePanelWidget::drawFontSizeSection(QPainter& painter) const
+{
+    // Label with current size value
+    painter.save();
+    QFont font("Segoe UI", 8);
+    font.setStyleHint(QFont::SansSerif);
+    painter.setFont(font);
+    painter.setPen(QColor(160, 160, 160));
+    QString label = QString::fromUtf8("字号 %1").arg(m_fontSize);
+    painter.drawText(kPadding, m_fontSizeLabelY + kLabelHeight - 2, label);
+    painter.restore();
+
+    // Slider track
+    painter.save();
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(QColor(80, 80, 80));
+    painter.drawRoundedRect(m_sliderTrackRect, kSliderTrackHeight / 2, kSliderTrackHeight / 2);
+
+    // Filled portion
+    int thumbX = sliderPosFromFontSize(m_fontSize);
+    QRect filledRect(m_sliderTrackRect.left(), m_sliderTrackRect.top(),
+                     thumbX - m_sliderTrackRect.left(), kSliderTrackHeight);
+    painter.setBrush(QColor(0, 120, 215));
+    painter.drawRoundedRect(filledRect, kSliderTrackHeight / 2, kSliderTrackHeight / 2);
+
+    // Thumb
+    int thumbY = m_sliderTrackRect.center().y();
+    bool hovered = (m_hovered.area == HitArea::FontSizeSlider) || m_draggingSlider;
+    painter.setPen(QPen(hovered ? Qt::white : QColor(180, 180, 180), 1.5));
+    painter.setBrush(QColor(0, 120, 215));
+    painter.drawEllipse(QPoint(thumbX, thumbY), kSliderThumbRadius, kSliderThumbRadius);
+
+    painter.restore();
+}
+
 void StylePanelWidget::mouseMoveEvent(QMouseEvent* event)
 {
+    if (m_draggingSlider) {
+        int newSize = fontSizeFromSliderPos(event->pos().x());
+        if (newSize != m_fontSize) {
+            m_fontSize = newSize;
+            emit fontSizeChanged(m_fontSize);
+            update();
+        }
+        return;
+    }
+
     HitResult hit = hitTest(event->pos());
     if (hit.area != m_hovered.area || hit.index != m_hovered.index) {
         m_hovered = hit;
@@ -311,13 +397,18 @@ void StylePanelWidget::mousePressEvent(QMouseEvent* event)
         m_currentColor = kPresetColors[hit.index];
         emit colorChanged(m_currentColor);
         update();
-    } else if (hit.area == HitArea::PenWidth && hit.index >= 0 && hit.index < 3) {
+    } else if (hit.area == HitArea::PenWidth && hit.index >= 0 && hit.index < kOptionCount) {
         m_penWidthIndex = hit.index;
         emit penWidthChanged(m_penWidths[hit.index]);
         update();
-    } else if (hit.area == HitArea::MosaicSize && hit.index >= 0 && hit.index < 3) {
+    } else if (hit.area == HitArea::MosaicSize && hit.index >= 0 && hit.index < kOptionCount) {
         m_mosaicSizeIndex = hit.index;
         emit mosaicSizeChanged(m_mosaicSizes[hit.index]);
+        update();
+    } else if (hit.area == HitArea::FontSizeSlider) {
+        m_draggingSlider = true;
+        m_fontSize = fontSizeFromSliderPos(event->pos().x());
+        emit fontSizeChanged(m_fontSize);
         update();
     }
 }
@@ -325,6 +416,7 @@ void StylePanelWidget::mousePressEvent(QMouseEvent* event)
 void StylePanelWidget::mouseReleaseEvent(QMouseEvent* event)
 {
     Q_UNUSED(event)
+    m_draggingSlider = false;
 }
 
 void StylePanelWidget::leaveEvent(QEvent* event)

@@ -713,6 +713,13 @@ void LinuxPlatformApi::unregisterHotkey(int hotkeyId)
 
 // ---- Factory ----
 
+std::vector<ControlInfo> PlatformApi::getWindowControlsAsync(NativeWindowHandle window)
+{
+    // Linux: create a temporary instance to query controls
+    auto api = PlatformApi::create();
+    return api->getWindowControls(window);
+}
+
 std::unique_ptr<PlatformApi> PlatformApi::create()
 {
     return std::make_unique<LinuxPlatformApi>();

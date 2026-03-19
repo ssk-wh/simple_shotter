@@ -385,6 +385,13 @@ void ToolbarWidget::leaveEvent(QEvent* event)
     update();
 }
 
+void ToolbarWidget::hideEvent(QHideEvent* event)
+{
+    if (m_stylePanel) m_stylePanel->hide();
+    if (m_saveMenu) m_saveMenu->hide();
+    QWidget::hideEvent(event);
+}
+
 void ToolbarWidget::showStylePanel(AnnotationTool tool)
 {
     if (tool == AnnotationTool::None) {
@@ -396,8 +403,21 @@ void ToolbarWidget::showStylePanel(AnnotationTool tool)
         m_stylePanel = new StylePanelWidget(nullptr);
     }
 
-    // Position below toolbar
-    QPoint panelPos(pos().x(), pos().y() + height() + 4);
+    // Layout first to know panel size, then decide position
+    m_stylePanel->layoutForTool(tool);
+    int panelH = m_stylePanel->height();
+    QPoint belowPos(pos().x(), pos().y() + height() + 4);
+    QPoint abovePos(pos().x(), pos().y() - panelH - 4);
+
+    QScreen* screen = QApplication::screenAt(pos());
+    QPoint panelPos = belowPos;
+    if (screen) {
+        QRect sr = screen->geometry();
+        if (belowPos.y() + panelH > sr.bottom()) {
+            panelPos = abovePos;
+        }
+    }
+
     m_stylePanel->showForTool(tool, panelPos);
 }
 
@@ -409,8 +429,24 @@ void ToolbarWidget::showSaveMenu(int buttonIndex)
         connect(m_saveMenu, &SaveMenuWidget::saveToFolder, this, &ToolbarWidget::saveToFolderClicked);
     }
 
+    // Align menu horizontally with the save button
     QRect btnRect = m_buttons[buttonIndex].rect;
-    QPoint menuPos = mapToGlobal(QPoint(btnRect.left(), btnRect.bottom() + 4));
+    int menuX = pos().x() + btnRect.left();
+
+    // Position below or above toolbar, same logic as style panel
+    int menuH = m_saveMenu->height();
+    QPoint belowPos(menuX, pos().y() + height() + 4);
+    QPoint abovePos(menuX, pos().y() - menuH - 4);
+
+    QPoint menuPos = belowPos;
+    QScreen* screen = QApplication::screenAt(pos());
+    if (screen) {
+        QRect sr = screen->geometry();
+        if (belowPos.y() + menuH > sr.bottom()) {
+            menuPos = abovePos;
+        }
+    }
+
     m_saveMenu->showAt(menuPos);
 }
 

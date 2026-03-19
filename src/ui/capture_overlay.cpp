@@ -11,6 +11,8 @@
 #include <QScreen>
 #include <QTextEdit>
 #include <QTimer>
+#include <QtConcurrent/QtConcurrentRun>
+#include <QFutureWatcher>
 
 namespace simpleshotter {
 
@@ -68,6 +70,12 @@ int CaptureOverlay::mosaicBlockSize() const
 {
     auto* panel = m_toolbar->stylePanel();
     return panel ? panel->currentMosaicSize() : 10;
+}
+
+int CaptureOverlay::annotationFontSize() const
+{
+    auto* panel = m_toolbar->stylePanel();
+    return panel ? panel->currentFontSize() : 14;
 }
 
 void CaptureOverlay::startCapture()
@@ -197,14 +205,19 @@ void CaptureOverlay::updateAutoDetect(const QPoint& pos)
             if (it == m_controlsCache.end()) {
                 // Mark as pending (empty vector) so we don't re-trigger
                 m_controlsCache.emplace(matchedWindow.handle, std::vector<ControlInfo>());
-                // Async load controls to avoid blocking mouse events
+                // Load controls in background thread to avoid blocking UI
                 quintptr handle = matchedWindow.handle;
-                QTimer::singleShot(0, this, [this, handle]() {
-                    if (m_state == State::Idle || !m_api) return;
-                    auto controls = m_api->getWindowControls(handle);
-                    m_controlsCache[handle] = std::move(controls);
-                    update();
+                auto* watcher = new QFutureWatcher<std::vector<ControlInfo>>(this);
+                connect(watcher, &QFutureWatcher<std::vector<ControlInfo>>::finished, this, [this, handle, watcher]() {
+                    if (m_state != State::Idle) {
+                        m_controlsCache[handle] = watcher->result();
+                        update();
+                    }
+                    watcher->deleteLater();
                 });
+                watcher->setFuture(QtConcurrent::run([handle]() {
+                    return PlatformApi::getWindowControlsAsync(handle);
+                }));
                 return;
             }
 
@@ -305,8 +318,13 @@ void CaptureOverlay::commitTextInput()
     m_textInput->hide();
     m_textInput->clear();
     setFocus();
-    raiseToolWidgets();
     update();
+}
+
+void CaptureOverlay::restoreToolWidgets()
+{
+    m_toolbar->showNearRect(selectionToScreen(normalizedSelection()));
+    m_toolbar->setActiveTool(m_activeTool);
 }
 
 void CaptureOverlay::startTextInput(const QPoint& pos)
@@ -315,11 +333,11 @@ void CaptureOverlay::startTextInput(const QPoint& pos)
         m_textInput = new QTextEdit(this);
         m_textInput->setFrameShape(QFrame::NoFrame);
         m_textInput->viewport()->setAutoFillBackground(false);
-        QFont font;
-        font.setPointSize(14);
-        m_textInput->setFont(font);
     }
-    // Update text color to current annotation color
+    // Update text style to current settings
+    QFont font = m_textInput->font();
+    font.setPointSize(annotationFontSize());
+    m_textInput->setFont(font);
     QPalette pal = m_textInput->palette();
     pal.setColor(QPalette::Base, Qt::transparent);
     pal.setColor(QPalette::Text, annotationColor());
@@ -335,7 +353,6 @@ void CaptureOverlay::startTextInput(const QPoint& pos)
     m_textInput->clear();
     m_textInput->show();
     m_textInput->setFocus();
-    raiseToolWidgets();
 }
 
 // ---- Painting ----
@@ -575,10 +592,10 @@ void CaptureOverlay::mousePressEvent(QMouseEvent* event)
             // Right-click in annotation mode: deselect tool
             commitTextInput();
             m_activeTool = AnnotationTool::None;
-            m_toolbar->setActiveTool(AnnotationTool::None);
             m_currentAnnotation.reset();
             m_isDrawingAnnotation = false;
             m_state = State::Selected;
+            restoreToolWidgets();
             updateCursorShape(event->pos());
             update();
         } else if (m_state == State::Selected) {
@@ -607,12 +624,14 @@ void CaptureOverlay::mousePressEvent(QMouseEvent* event)
 
         if (m_activeTool == AnnotationTool::Text) {
             commitTextInput();
+            m_toolbar->hide();
             startTextInput(pos);
             return;
         }
 
         m_isDrawingAnnotation = true;
         m_dragStartPos = pos;
+        m_toolbar->hide();
 
         switch (m_activeTool) {
         case AnnotationTool::Rectangle: {
@@ -804,8 +823,8 @@ void CaptureOverlay::mouseReleaseEvent(QMouseEvent* event)
                 m_currentAnnotation.reset();
             }
         }
-        // Re-raise toolbar so it stays visible after drawing
-        raiseToolWidgets();
+        // Re-show toolbar and style panel after drawing
+        restoreToolWidgets();
         update();
         return;
     }
@@ -865,7 +884,7 @@ void CaptureOverlay::keyPressEvent(QKeyEvent* event)
     if (m_textInput && m_textInput->isVisible() && m_textInput->hasFocus()) {
         if (event->key() == Qt::Key_Escape) {
             commitTextInput();
-            setFocus();
+            restoreToolWidgets();
             return;
         }
         // Let QTextEdit handle the key
