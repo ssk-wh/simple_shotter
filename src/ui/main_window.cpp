@@ -5,8 +5,11 @@
 #include "../utils/file_saver.h"
 #include <QAction>
 #include <QApplication>
+#include <QClipboard>
+#include <QMimeData>
 #include <QFileInfo>
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QStandardPaths>
 #include <QPainter>
 #include <QPixmap>
@@ -153,7 +156,7 @@ void MainWindow::onStartCapture()
     // Recreate overlay each time to avoid stale DPI/geometry context
     // when switching between screens with different resolutions
     delete m_captureOverlay;
-    m_captureOverlay = new CaptureOverlay(m_platformApi.get(), nullptr);
+    m_captureOverlay = new CaptureOverlay(m_platformApi.get(), m_trayIcon, nullptr);
     connect(m_captureOverlay, &CaptureOverlay::captureConfirmed,
             this, &MainWindow::onCaptureConfirmed);
     connect(m_captureOverlay, &CaptureOverlay::captureSaveRequested,
@@ -178,10 +181,20 @@ void MainWindow::onCaptureSaveRequested(const QPixmap& pixmap, const QRect& regi
 {
     Q_UNUSED(region)
     if (action == static_cast<int>(CaptureOverlay::SaveAction::SaveToDesktop)) {
-        if (m_fileSaver->saveToDesktop(pixmap)) {
+        QString savedPath = m_fileSaver->saveToDesktop(pixmap);
+        if (!savedPath.isEmpty()) {
+            // 多格式剪贴板：文本区粘贴得到路径，图片区粘贴得到图片
+            QMimeData* mimeData = new QMimeData();
+            mimeData->setText(savedPath);
+            mimeData->setImageData(pixmap.toImage());
+            QApplication::clipboard()->setMimeData(mimeData);
             m_trayIcon->showMessage("SimpleShotter",
-                QString::fromUtf8("截图已保存到桌面"),
-                QSystemTrayIcon::Information, 2000);
+                QString::fromUtf8("截图已保存到桌面（已复制到剪贴板）"),
+                QSystemTrayIcon::Information, 3000);
+        } else {
+            m_trayIcon->showMessage("SimpleShotter",
+                QString::fromUtf8("保存失败：") + m_fileSaver->getLastError(),
+                QSystemTrayIcon::Warning, 3000);
         }
     } else if (action == static_cast<int>(CaptureOverlay::SaveAction::SaveToFolder)) {
         QString filePath = QFileDialog::getSaveFileName(
@@ -191,10 +204,33 @@ void MainWindow::onCaptureSaveRequested(const QPixmap& pixmap, const QRect& regi
                 FileSaver::generateFileName(FileSaver::Format::PNG),
             "PNG (*.png);;JPEG (*.jpg);;BMP (*.bmp)");
         if (!filePath.isEmpty()) {
-            if (m_fileSaver->saveToFile(pixmap, filePath)) {
+            // 检查文件是否已存在
+            QFileInfo fileInfo(filePath);
+            if (fileInfo.exists()) {
+                QMessageBox::StandardButton ret = QMessageBox::question(this,
+                    QString::fromUtf8("文件已存在"),
+                    QString::fromUtf8("文件 %1 已存在，是否覆盖？").arg(fileInfo.fileName()),
+                    QMessageBox::Yes | QMessageBox::No);
+                if (ret != QMessageBox::Yes) {
+                    // 用户选择不覆盖
+                    return;
+                }
+            }
+
+            QString savedPath = m_fileSaver->saveToFile(pixmap, filePath);
+            if (!savedPath.isEmpty()) {
+                // 多格式剪贴板：文本区粘贴得到路径，图片区粘贴得到图片
+                QMimeData* mimeData = new QMimeData();
+                mimeData->setText(savedPath);
+                mimeData->setImageData(pixmap.toImage());
+                QApplication::clipboard()->setMimeData(mimeData);
                 m_trayIcon->showMessage("SimpleShotter",
-                    QString::fromUtf8("截图已保存到 ") + filePath,
-                    QSystemTrayIcon::Information, 2000);
+                    QString::fromUtf8("已保存到：%1（已复制到剪贴板）").arg(fileInfo.fileName()),
+                    QSystemTrayIcon::Information, 3000);
+            } else {
+                m_trayIcon->showMessage("SimpleShotter",
+                    QString::fromUtf8("保存失败：") + m_fileSaver->getLastError(),
+                    QSystemTrayIcon::Warning, 3000);
             }
         }
     }

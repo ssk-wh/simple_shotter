@@ -8,6 +8,8 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QApplication>
+#include <QClipboard>
+#include <QMimeData>
 #include <QScreen>
 #include <QTextEdit>
 #include <QTimer>
@@ -16,9 +18,10 @@
 
 namespace simpleshotter {
 
-CaptureOverlay::CaptureOverlay(PlatformApi* api, QWidget* parent)
+CaptureOverlay::CaptureOverlay(PlatformApi* api, QSystemTrayIcon* trayIcon, QWidget* parent)
     : QWidget(parent)
     , m_api(api)
+    , m_trayIcon(trayIcon)
     , m_toolbar(new ToolbarWidget(nullptr))
     , m_preview(new PreviewWidget(nullptr))
 {
@@ -76,6 +79,30 @@ int CaptureOverlay::annotationFontSize() const
 {
     auto* panel = m_toolbar->stylePanel();
     return panel ? panel->currentFontSize() : 14;
+}
+
+void CaptureOverlay::showSaveNotification(const QString& message, bool isSuccess)
+{
+    if (!m_trayIcon) {
+        return;
+    }
+
+    QString title = isSuccess ? QString::fromUtf8("截图已保存") : QString::fromUtf8("保存失败");
+    QSystemTrayIcon::MessageIcon icon = isSuccess ?
+        QSystemTrayIcon::Information : QSystemTrayIcon::Warning;
+
+    m_trayIcon->showMessage(title, message, icon, 3000);
+}
+
+void CaptureOverlay::copyFilePathToClipboard(const QString& filePath)
+{
+    // 多格式剪贴板：文本区粘贴得到路径，图片区粘贴得到图片
+    QMimeData* mimeData = new QMimeData();
+    mimeData->setText(filePath);
+    if (!m_screenPixmap.isNull() && m_selectionRect.isValid()) {
+        mimeData->setImageData(m_screenPixmap.copy(m_selectionRect).toImage());
+    }
+    QApplication::clipboard()->setMimeData(mimeData);
 }
 
 void CaptureOverlay::startCapture()

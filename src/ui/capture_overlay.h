@@ -7,6 +7,7 @@
 #include <QVector>
 #include <QColor>
 #include <QElapsedTimer>
+#include <QSystemTrayIcon>
 #include "../platform/platform_api.h"
 #include "annotation_item.h"
 #include <unordered_map>
@@ -22,7 +23,7 @@ class PreviewWidget;
 class CaptureOverlay : public QWidget {
     Q_OBJECT
 public:
-    explicit CaptureOverlay(PlatformApi* api, QWidget* parent = nullptr);
+    explicit CaptureOverlay(PlatformApi* api, QSystemTrayIcon* trayIcon = nullptr, QWidget* parent = nullptr);
     ~CaptureOverlay() override;
 
     void startCapture();
@@ -93,6 +94,10 @@ private:
     void commitTextInput();
     void startTextInput(const QPoint& pos);
 
+    // Notification helpers
+    void showSaveNotification(const QString& message, bool isSuccess);
+    void copyFilePathToClipboard(const QString& filePath);
+
     static constexpr int kHandleSize = 8;
     static constexpr int kHandleHitMargin = 4;
     static constexpr int kBorderWidth = 2;
@@ -103,6 +108,7 @@ private:
     int annotationFontSize() const;
 
     PlatformApi* m_api;
+    QSystemTrayIcon* m_trayIcon;
     State m_state = State::Idle;
     QPixmap m_screenPixmap;
 
